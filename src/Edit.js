@@ -25,27 +25,29 @@ const useUsersData = () => {
   const [data, setData] = useState([]);
   const [originalData, setOriginalData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const loadUsersData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/users'); // Ensure this URL matches your JSON server
+        const response = await axios.get('https://jsonplaceholder.typicode.com/users');
         setData(response.data);
         setOriginalData(response.data);
         setFilteredData(response.data);
       } catch (error) {
         console.error('Error loading users data:', error);
+        setError('Error loading users data');
       }
     };
 
     loadUsersData();
   }, []);
 
-  return { data, originalData, filteredData, setData, setOriginalData, setFilteredData };
+  return { data, originalData, filteredData, setData, setOriginalData, setFilteredData, error };
 };
 
 const Edit = () => {
-  const { data, originalData, filteredData, setData, setFilteredData } = useUsersData();
+  const { data, originalData, filteredData, setData, setFilteredData, error } = useUsersData();
   const [value, setValue] = useState('');
   const [sortValue, setSortValue] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
@@ -149,6 +151,7 @@ const Edit = () => {
       </form>
       <div style={{ marginTop: '30px' }}></div>
       <h2 className="text-center">Search, Filter, Sort, and Pagination</h2>
+      {error && <p className="text-danger text-center">{error}</p>}
       <MDBRow>
         <MDBCol size="12">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
@@ -194,8 +197,8 @@ const Edit = () => {
                     <td>{item.name}</td>
                     <td>{item.email}</td>
                     <td>{item.phone}</td>
-                    <td>{item.address}</td>
-                    <td>{item.status}</td>
+                    <td>{item.address.street}, {item.address.city}</td>
+                    <td>{item.status || 'N/A'}</td>
                   </tr>
                 </MDBTableBody>
               ))
